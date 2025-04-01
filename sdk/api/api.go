@@ -3,6 +3,7 @@ package api
 import (
 	"errors"
 	"fmt"
+	"github.com/go-admin-team/go-admin-core/storage"
 
 	"net/http"
 
@@ -14,7 +15,6 @@ import (
 	"github.com/go-admin-team/go-admin-core/sdk/pkg"
 	"github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 	"github.com/go-admin-team/go-admin-core/sdk/service"
-	"github.com/go-admin-team/go-admin-core/storage"
 	"github.com/go-admin-team/go-admin-core/tools/language"
 	"gorm.io/gorm"
 )
@@ -100,6 +100,23 @@ func (e *Api) MakeOrm() *Api {
 		return e
 	}
 	db, err := pkg.GetOrm(e.Context)
+	if err != nil {
+		e.Logger.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
+		e.AddError(err)
+	}
+	e.Orm = db
+	return e
+}
+
+// MakeOrm2 设置Orm DB
+func (e *Api) MakeOrm2() *Api {
+	var err error
+	if e.Logger == nil {
+		err = errors.New("at MakeOrm logger is nil")
+		e.AddError(err)
+		return e
+	}
+	db, err := pkg.GetOrm2(e.Context)
 	if err != nil {
 		e.Logger.Error(http.StatusInternalServerError, err, "数据库连接获取失败")
 		e.AddError(err)
